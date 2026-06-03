@@ -9,20 +9,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `wabox allow` command — manage who can reach the inbox by phone number
+  (`list`/`add`/`remove`/`clear`), edited offline in `config.json` with the
+  service restarted automatically.
+
+## [0.1.3] - 2026-06-03
+
+### Added
+
 - Send a native WhatsApp read receipt (blue checkmarks) when a message's `.json`
   is removed from the inbox. The consumer owns inbox cleanup; deleting a file is
   the "message processed" signal.
 - `wabox update` command — updates the global npm package and restarts the
   background service.
-- `wabox allow` command — manage who can reach the inbox by phone number
-  (`list`/`add`/`remove`/`clear`), edited offline in `config.json` with the
-  service restarted automatically.
 
 ### Changed
 
 - Quiet Baileys' chatty internal logs by giving it its own logger (default
   `warn`, tunable via `BAILEYS_LOG_LEVEL`), so harmless app-state resync and
   init-query timeouts no longer flood the journal.
+
+> Note: version 0.1.2 was bumped during development but never published to npm;
+> its logging change shipped as part of 0.1.3.
+
+## [0.1.1] - 2026-06-03
 
 ### Fixed
 
@@ -48,5 +58,7 @@ Initial release.
   install via systemd, launchd, or Windows Task Scheduler.
 - MIT license and contribution guidelines, including an AI-assistance policy.
 
-[Unreleased]: https://github.com/rodgco/wabox/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/rodgco/wabox/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/rodgco/wabox/compare/v0.1.1...v0.1.3
+[0.1.1]: https://github.com/rodgco/wabox/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/rodgco/wabox/releases/tag/v0.1.0
