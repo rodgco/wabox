@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.6] - 2026-06-03
+
 ### Fixed
 
 - Allow list now matches the sender's real phone number even when the chat is
@@ -78,7 +80,8 @@ Initial release.
   install via systemd, launchd, or Windows Task Scheduler.
 - MIT license and contribution guidelines, including an AI-assistance policy.
 
-[Unreleased]: https://github.com/rodgco/wabox/compare/v0.1.5...HEAD
+[Unreleased]: https://github.com/rodgco/wabox/compare/v0.1.6...HEAD
+[0.1.6]: https://github.com/rodgco/wabox/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/rodgco/wabox/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/rodgco/wabox/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/rodgco/wabox/compare/v0.1.1...v0.1.3
