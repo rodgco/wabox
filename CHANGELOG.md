@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.8] - 2026-06-03
+
 ### Added
 
 - Installable agent skill at `skills/wabox` (Agent Skills / skills.sh standard):
@@ -98,7 +100,8 @@ Initial release.
   install via systemd, launchd, or Windows Task Scheduler.
 - MIT license and contribution guidelines, including an AI-assistance policy.
 
-[Unreleased]: https://github.com/rodgco/wabox/compare/v0.1.7...HEAD
+[Unreleased]: https://github.com/rodgco/wabox/compare/v0.1.8...HEAD
+[0.1.8]: https://github.com/rodgco/wabox/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/rodgco/wabox/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/rodgco/wabox/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/rodgco/wabox/compare/v0.1.4...v0.1.5
