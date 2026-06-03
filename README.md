@@ -197,6 +197,11 @@ in `config.json` resolve against `<data>`; `~` is expanded.
   control and don't abuse it.
 - Deleting `auth/` forces a fresh QR pairing.
 
+## Contributing
+
+Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for setup,
+how to verify changes, and the AI-assistance policy.
+
 ## AI assistance
 
 wabox was built with the help of an AI coding assistant (Anthropic's Claude, via
