@@ -150,6 +150,100 @@ render. Paste raw URLs; WhatsApp auto-links them.
 - **Respect the allow list.** If a chat reaches you, it's already permitted; you
   don't manage access (that's `wabox allow`, run by the operator).
 
+## Example jobs
+
+Each block is a complete `outbox/<something>.json` file. `to` uses a bare number
+for DMs; swap in a `…@g.us` JID for groups. Replace ids with the incoming `id`.
+
+**Plain text reply (DM):**
+
+```json
+{ "to": "5511983426258", "text": "Done — your report is ready." }
+```
+
+**Quote-reply to a specific message:**
+
+```json
+{
+  "to": "5511983426258",
+  "text": "Yes, that one works.",
+  "replyTo": { "id": "3A80DACFEEF3EEE1A448" }
+}
+```
+
+**React only (acknowledge, no message):**
+
+```json
+{
+  "to": "5511983426258",
+  "react": { "emoji": "👀", "messageId": "3A80DACFEEF3EEE1A448" }
+}
+```
+
+**React and reply in one job:**
+
+```json
+{
+  "to": "5511983426258",
+  "react": { "emoji": "✅", "messageId": "3A80DACFEEF3EEE1A448" },
+  "text": "Processed and saved."
+}
+```
+
+**Send a document with a caption:**
+
+```json
+{
+  "to": "5511983426258",
+  "text": "Here's the invoice (PDF).",
+  "files": ["invoices/2026-06.pdf"]
+}
+```
+
+**Send an image:**
+
+```json
+{ "to": "5511983426258", "files": ["charts/sales.png"] }
+```
+
+**Send several files (text becomes the caption of the first):**
+
+```json
+{
+  "to": "5511983426258",
+  "text": "Both versions attached.",
+  "files": ["draft-v1.pdf", "draft-v2.pdf"]
+}
+```
+
+**Reply inside a group, quoting the sender:**
+
+```json
+{
+  "to": "120363012345678901@g.us",
+  "text": "On it, @here.",
+  "replyTo": {
+    "id": "3A80DACFEEF3EEE1A448",
+    "participant": "5511983426258@s.whatsapp.net"
+  }
+}
+```
+
+**Remove a reaction you set earlier:**
+
+```json
+{
+  "to": "5511983426258",
+  "react": { "emoji": "", "messageId": "3A80DACFEEF3EEE1A448" }
+}
+```
+
+**Formatted text (WhatsApp markup):**
+
+```json
+{ "to": "5511983426258", "text": "*Status:* _running_\n~old~ → new" }
+```
+
 ## Minimal pseudocode
 
 ```text

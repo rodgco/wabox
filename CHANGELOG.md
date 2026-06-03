@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `INTEGRATION.md` — a guide for agents that consume the boxes (message/job
+  formats, replies, reactions, content types, WhatsApp text formatting, the
+  read-receipt lifecycle, and ready-to-use job examples). Shipped in the npm
+  package.
+
 ## [0.1.7] - 2026-06-03
 
 ### Fixed
