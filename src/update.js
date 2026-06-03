@@ -9,11 +9,28 @@ import { APP } from './paths.js';
 import { getService } from './service.js';
 
 export async function runUpdate({ version = 'latest' } = {}) {
-  const spec = `${APP}@${version}`;
+  // Resolve `latest` to a concrete version with a fresh registry read. npm's
+  // cached dist-tag for @latest can be stale, which silently reinstalls the
+  // version you already have instead of the newest one.
+  let target = version;
+  if (version === 'latest') {
+    try {
+      target =
+        execFileSync('npm', ['view', `${APP}@latest`, 'version', '--prefer-online'], {
+          encoding: 'utf8',
+        }).trim() || 'latest';
+    } catch {
+      target = 'latest';
+    }
+  }
+  const spec = `${APP}@${target}`;
 
   console.log(`==> Updating ${spec} (npm install -g)…`);
   try {
-    execFileSync('npm', ['install', '-g', spec], { stdio: 'inherit' });
+    // --prefer-online revalidates cached metadata against the registry.
+    execFileSync('npm', ['install', '-g', spec, '--prefer-online'], {
+      stdio: 'inherit',
+    });
   } catch (err) {
     console.error(`⚠ npm install failed: ${err.message}`);
     console.error(`  Try manually: npm install -g ${spec}`);

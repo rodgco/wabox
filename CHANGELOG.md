@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `wabox update` could reinstall the version you already had because npm's cached
+  `@latest` dist-tag was stale. It now resolves the concrete latest version with
+  a fresh registry read and installs with `--prefer-online`.
+
 ## [0.1.6] - 2026-06-03
 
 ### Fixed
