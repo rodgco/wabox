@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { downloadMediaMessage } from '@whiskeysockets/baileys';
 import { config } from '../config.js';
-import { logger } from './logger.js';
+import { logger, baileysLogger } from './logger.js';
 
 // Maps the media message keys Baileys exposes to a friendly type label.
 const MEDIA_KEYS = {
@@ -121,7 +121,7 @@ export async function saveIncoming(sock, m) {
         m,
         'buffer',
         {},
-        { logger, reqMediaUpload: sock.updateMediaMessage },
+        { logger: baileysLogger, reqMediaUpload: sock.updateMediaMessage },
       );
       const ext = extFor(media.node, media.type);
       const fileName = media.node.fileName || `${stem}.${ext}`;

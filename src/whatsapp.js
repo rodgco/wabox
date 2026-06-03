@@ -5,7 +5,7 @@ import makeWASocket, {
 } from '@whiskeysockets/baileys';
 import qrcode from 'qrcode-terminal';
 import { config } from '../config.js';
-import { logger } from './logger.js';
+import { logger, baileysLogger } from './logger.js';
 import { DISPLAY_NAME } from './paths.js';
 
 // Opens (and keeps open) a WhatsApp connection. `onMessage(sock, m)` is called
@@ -22,7 +22,7 @@ export async function connectWhatsApp({
   const sock = makeWASocket({
     version,
     auth: state,
-    logger,
+    logger: baileysLogger,
     browser: [DISPLAY_NAME, 'Chrome', '1.0.0'],
   });
 

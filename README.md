@@ -186,7 +186,8 @@ Settings come from (highest priority first): **environment variable** →
 | `authDir`       | `AUTH_DIR`       | `<data>/auth`         | WhatsApp session storage.                         |
 | `allowFrom`     | `ALLOW_FROM`     | `[]` (all)            | Numbers/JIDs to accept (array, or CSV in env).    |
 | `ignoreFromMe`  | `IGNORE_FROM_ME` | `true`                | Skip messages the bot itself sent.                |
-| `logLevel`      | `LOG_LEVEL`      | `info`                | pino log level.                                   |
+| `logLevel`      | `LOG_LEVEL`      | `info`                | pino log level for wabox's own logs.              |
+| `baileysLogLevel` | `BAILEYS_LOG_LEVEL` | `warn`           | Log level for Baileys' (chatty) internal logs.    |
 
 `<data>` is the per-OS data dir from the locations table above. Relative paths
 in `config.json` resolve against `<data>`; `~` is expanded.

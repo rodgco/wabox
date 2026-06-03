@@ -43,6 +43,7 @@ export const config = {
   outboxDir: resolveData(pick('OUTBOX_DIR', 'outboxDir', defaults.outboxDir)),
 
   logLevel: pick('LOG_LEVEL', 'logLevel', defaults.logLevel),
+  baileysLogLevel: pick('BAILEYS_LOG_LEVEL', 'baileysLogLevel', 'warn'),
   allowFrom,
   ignoreFromMe,
 };
