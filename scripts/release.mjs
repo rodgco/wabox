@@ -127,15 +127,17 @@ console.log(`✓ version set to ${newVersion}`);
 // --- 3. commit + tag ---
 run('git', ['add', 'CHANGELOG.md', 'package.json', 'package-lock.json']);
 run('git', ['commit', '-m', `release: v${newVersion}`]);
-run('git', ['tag', `v${newVersion}`]);
+// Annotated tag (not lightweight) so it carries a message and is pushed below.
+run('git', ['tag', '-a', `v${newVersion}`, '-m', `v${newVersion}`]);
 console.log(`✓ committed and tagged v${newVersion}`);
 
 // --- 4. publish (interactive OTP) ---
 run('npm', ['publish', '--access', 'public']);
 console.log('✓ published to npm');
 
-// --- 5. push ---
-run('git', ['push', 'origin', 'main', '--follow-tags']);
+// --- 5. push commit + tag (explicit tag push, not --follow-tags) ---
+run('git', ['push', 'origin', 'main']);
+run('git', ['push', 'origin', `v${newVersion}`]);
 console.log('✓ pushed commit and tag');
 
 console.log(`\n🎉 wabox v${newVersion} released.`);
