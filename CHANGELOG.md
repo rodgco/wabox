@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Allow list now matches the sender's real phone number even when the chat is
+  routed via a LID (`@lid`): it checks `senderPn`/`participantPn`, not just the
+  chat JID. Previously messages from an allowed number could be wrongly rejected.
+
+### Added
+
+- Inbox records now include the sender's resolved `number`, and the rejection log
+  shows the real phone number (not the LID).
+
 ## [0.1.5] - 2026-06-03
 
 ### Added

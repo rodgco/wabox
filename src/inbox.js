@@ -93,10 +93,36 @@ function stemFor(m) {
   return `${stamp}_${sender}_${id}`;
 }
 
-function allowed(jid) {
+// Local part of a JID, without the @server or :device suffix.
+// "5511983426258:2@s.whatsapp.net" -> "5511983426258"
+function bare(jid) {
+  return (jid || '').split('@')[0].split(':')[0];
+}
+
+// The sender's real phone number. When remoteJid is a LID (@lid), WhatsApp still
+// sends the phone-number identity in senderPn / participantPn.
+function senderNumber(m) {
+  const k = m.key || {};
+  const pn =
+    k.senderPn ||
+    k.participantPn ||
+    (k.remoteJid?.endsWith('@s.whatsapp.net') ? k.remoteJid : null) ||
+    (k.participant?.endsWith('@s.whatsapp.net') ? k.participant : null);
+  return pn ? bare(pn) : null;
+}
+
+// Match the allow list against every identity the sender carries — phone number
+// (senderPn/participantPn), LID, and chat JID — so a LID-routed message from an
+// allowed number still passes.
+function allowed(m) {
   if (config.allowFrom.length === 0) return true;
-  const bare = (jid || '').split('@')[0];
-  return config.allowFrom.some((a) => a === jid || a === bare);
+  const k = m.key || {};
+  const candidates = new Set(
+    [k.remoteJid, k.senderPn, k.senderLid, k.participant, k.participantPn]
+      .filter(Boolean)
+      .map(bare),
+  );
+  return config.allowFrom.some((a) => candidates.has(bare(a)));
 }
 
 export async function saveIncoming(sock, m) {
@@ -105,11 +131,12 @@ export async function saveIncoming(sock, m) {
 
   const jid = m.key.remoteJid;
   if (jid === 'status@broadcast') return;
-  if (!allowed(jid)) {
+  const number = senderNumber(m);
+  if (!allowed(m)) {
     // Visible by default so you can see who tried to reach a restricted inbox
     // (and spot numbers you may want to add via `wabox allow add`).
     logger.info(
-      { number: (jid || '').split('@')[0], name: m.pushName || null },
+      { number: number || bare(jid), name: m.pushName || null },
       'message rejected — sender not in allow list',
     );
     return;
@@ -123,6 +150,9 @@ export async function saveIncoming(sock, m) {
   const record = {
     id: m.key.id,
     from: jid,
+    // The sender's real phone number (resolved from senderPn when `from` is a
+    // LID). Use this to reply by number.
+    number: number || null,
     // In groups this is the actual sender's JID; null in 1:1 chats. Needed to
     // quote-reply correctly. See replyTo in the outbox contract.
     participant: m.key.participant || null,

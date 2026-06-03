@@ -58,8 +58,10 @@ justify any new runtime dependency.
 - **Never commit `auth/`** (WhatsApp session credentials). It's gitignored.
 - **Watchers rebind to the live socket** on reconnect (see `onReady` in
   `gateway.js`); module-level state (e.g. inbox key cache) persists across rebinds.
-- **Allow-list matching is by phone number** (local part of the JID), not full
-  JID. Known limitation: `@lid` senders won't match by number.
+- **Allow-list matching is by phone number.** When a chat is routed via a LID
+  (`@lid`), the real number arrives in `m.key.senderPn` / `participantPn` —
+  `allowed()` checks all of those, not just `remoteJid`. Don't regress this back
+  to matching `remoteJid` only.
 
 ## Run & verify
 
