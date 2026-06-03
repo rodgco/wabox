@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Installable agent skill at `skills/wabox` (Agent Skills / skills.sh standard):
+  `npx skills add rodgco/wabox` teaches a consumer agent the inbox/outbox
+  contract and the read → remove → respond workflow.
 - `INTEGRATION.md` — a guide for agents that consume the boxes (message/job
   formats, replies, reactions, content types, WhatsApp text formatting, the
   read-receipt lifecycle, and ready-to-use job examples). Shipped in the npm

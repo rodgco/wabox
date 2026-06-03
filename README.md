@@ -124,6 +124,8 @@ service (see "Managing the service directly").
 > Building the process/agent that consumes the boxes? See
 > **[INTEGRATION.md](INTEGRATION.md)** for the full contract — message format,
 > how to reply, react, send media, format text, and the read-receipt lifecycle.
+> Or install the skill so your agent already knows it:
+> `npx skills add rodgco/wabox` (see [`skills/wabox`](skills/wabox/SKILL.md)).
 
 ### Inbox (incoming)
 
