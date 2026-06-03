@@ -7,3 +7,7 @@ auth/
 inbox/
 outbox/
 .env
+
+# VitePress (the built site is committed under /docs and is NOT ignored).
+website/.vitepress/cache/
+website/.vitepress/dist/

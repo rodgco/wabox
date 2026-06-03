@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="wabox">
+  <rect width="48" height="48" rx="11" fill="#25a56a"/>
+  <path d="M11 26h7l1.6 3h8.8l1.6-3h7v9.5a2.5 2.5 0 0 1-2.5 2.5h-28A2.5 2.5 0 0 1 11 35.5z"
+        fill="#fff"/>
+  <path d="M13 25.5 16.8 14a2.5 2.5 0 0 1 2.37-1.7h9.66A2.5 2.5 0 0 1 31.2 14L35 25.5"
+        fill="none" stroke="#fff" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M24 8.5v8m0 0-2.6-2.6M24 16.5l2.6-2.6"
+        fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

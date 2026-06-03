@@ -127,6 +127,10 @@ console.log(`✓ version set to ${newVersion}`);
 // Regenerate the skill from INTEGRATION.md so it can't ship stale.
 run('node', ['scripts/build-skill.mjs']);
 
+// Rebuild the docs site so the GitHub Pages source (/docs) can't ship stale —
+// it pulls the bumped version (nav badge) and the dated changelog page.
+run('npm', ['run', 'docs:build']);
+
 // --- 3. commit + tag ---
 run('git', [
   'add',
@@ -134,6 +138,7 @@ run('git', [
   'package.json',
   'package-lock.json',
   'skills/wabox/SKILL.md',
+  'docs',
 ]);
 run('git', ['commit', '-m', `release: v${newVersion}`]);
 // Annotated tag (not lightweight) so it carries a message and is pushed below.

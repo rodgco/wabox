@@ -20,7 +20,7 @@ npm run config
 
 Requires **Node.js >= 18**. wabox runs on Linux, macOS and Windows.
 
-> Using an AI coding agent? [AGENTS.md](AGENTS.md) documents the architecture and
+> Using an AI coding agent? [AGENTS.md](https://github.com/rodgco/wabox/blob/main/AGENTS.md) documents the architecture and
 > the project's key invariants and gotchas — worth a read before any change.
 
 ## Project layout
@@ -124,4 +124,4 @@ redacted example of the inbox/outbox JSON is very helpful.
 ## License
 
 By contributing, you agree that your contributions are licensed under the
-project's [MIT License](LICENSE).
+project's [MIT License](https://github.com/rodgco/wabox/blob/main/LICENSE).

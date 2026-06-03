@@ -17,6 +17,8 @@ files.
 
 ## Install
 
+<!-- #region install -->
+
 ```bash
 npm install -g wabox
 wabox config
@@ -46,7 +48,11 @@ overrides them on any platform.
 
 Run `wabox status` any time to print the resolved paths and service state.
 
+<!-- #endregion install -->
+
 ### Commands
+
+<!-- #region commands -->
 
 ```bash
 wabox config       # interactive setup (config + service + pairing)
@@ -58,7 +64,11 @@ wabox status       # show resolved paths + service state
 wabox uninstall    # remove the service (--purge: also config + data)
 ```
 
+<!-- #endregion commands -->
+
 ### Restricting who can reach the inbox
+
+<!-- #region allow -->
 
 By default wabox accepts messages from everyone. To limit it to specific people,
 manage an allow list **by phone number** (country code + number, no `+`):
@@ -75,7 +85,11 @@ Changes are written to `config.json` and the service is restarted automatically
 so they take effect. You only need the **phone number** — not the WhatsApp JID;
 wabox matches incoming senders by number.
 
+<!-- #endregion allow -->
+
 ### Managing the service directly
+
+<!-- #region service -->
 
 ```bash
 # Linux (systemd)
@@ -97,7 +111,11 @@ type "%LOCALAPPDATA%\wabox\wabox.log"     # logs
 > config and pairs; run the gateway yourself with `wabox run` (under your
 > own supervisor of choice).
 
+<!-- #endregion service -->
+
 ### Running from a checkout (no global install)
+
+<!-- #region checkout -->
 
 ```bash
 npm install
@@ -105,7 +123,11 @@ npm run config      # same interactive setup
 npm start           # = wabox run
 ```
 
+<!-- #endregion checkout -->
+
 ### Putting the inbox/outbox somewhere else
+
+<!-- #region relocate -->
 
 Edit your `config.json` (see the table above for its location) and point the
 folders anywhere:
@@ -120,13 +142,17 @@ folders anywhere:
 Relative paths resolve against the data dir; `~` is expanded. Then restart the
 service (see "Managing the service directly").
 
+<!-- #endregion relocate -->
+
 ## How it works
 
+<!-- #region howitworks -->
+
 > Building the process/agent that consumes the boxes? See
-> **[INTEGRATION.md](INTEGRATION.md)** for the full contract — message format,
+> **[INTEGRATION.md](https://github.com/rodgco/wabox/blob/main/INTEGRATION.md)** for the full contract — message format,
 > how to reply, react, send media, format text, and the read-receipt lifecycle.
 > Or install the skill so your agent already knows it:
-> `npx skills add rodgco/wabox` (see [`skills/wabox`](skills/wabox/SKILL.md)).
+> `npx skills add rodgco/wabox` (see [`skills/wabox`](https://github.com/rodgco/wabox/blob/main/skills/wabox/SKILL.md)).
 
 ### Inbox (incoming)
 
@@ -176,7 +202,7 @@ respond**:
 Removing on pickup (before processing) means the sender is acknowledged
 immediately, not only once a slow reply is ready. A message stays "unread" until
 you remove it. Blue ticks only appear if both accounts have read receipts enabled
-in WhatsApp. See [INTEGRATION.md](INTEGRATION.md) for the full consumer guide.
+in WhatsApp. See [INTEGRATION.md](https://github.com/rodgco/wabox/blob/main/INTEGRATION.md) for the full consumer guide.
 
 ### Outbox (outgoing)
 
@@ -224,7 +250,11 @@ Once processed, the job file is moved to `outbox/sent/`. If it fails, it goes to
 > so the watcher never reads a half-written file. The watcher also waits for
 > writes to settle, but rename is safest.
 
+<!-- #endregion howitworks -->
+
 ## Configuration
+
+<!-- #region config -->
 
 Settings come from (highest priority first): **environment variable** →
 **`~/.config/wabox/config.json`** → **built-in default**.
@@ -241,6 +271,8 @@ Settings come from (highest priority first): **environment variable** →
 
 `<data>` is the per-OS data dir from the locations table above. Relative paths
 in `config.json` resolve against `<data>`; `~` is expanded.
+
+<!-- #endregion config -->
 
 ## Notes
 

@@ -1,0 +1,31 @@
+/* wabox brand accent — a WhatsApp-adjacent green. */
+:root {
+  --vp-c-brand-1: #1f8a59;
+  --vp-c-brand-2: #25a56a;
+  --vp-c-brand-3: #25a56a;
+  --vp-c-brand-soft: rgba(37, 165, 106, 0.14);
+}
+
+.dark {
+  /* Lift the brand on dark backgrounds for AA contrast on links/buttons. */
+  --vp-c-brand-1: #3ecb88;
+  --vp-c-brand-2: #2fb877;
+  --vp-c-brand-3: #25a56a;
+  --vp-c-brand-soft: rgba(37, 165, 106, 0.2);
+}
+
+/* Tint the home hero name with the brand gradient. */
+:root {
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: -webkit-linear-gradient(
+    120deg,
+    #25a56a 30%,
+    #16a085
+  );
+  --vp-home-hero-image-background-image: linear-gradient(
+    -45deg,
+    #25a56a 50%,
+    #1f8a59 50%
+  );
+  --vp-home-hero-image-filter: blur(44px);
+}

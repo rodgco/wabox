@@ -43,6 +43,9 @@
     "dev": "node --watch bin/cli.js run",
     "build:skill": "node scripts/build-skill.mjs",
     "check:skill": "node scripts/build-skill.mjs --check",
+    "docs:dev": "vitepress dev website",
+    "docs:build": "vitepress build website",
+    "docs:preview": "vitepress preview website",
     "release": "node scripts/release.mjs"
   },
   "engines": {
@@ -53,5 +56,14 @@
     "chokidar": "^4.0.3",
     "pino": "^9.6.0",
     "qrcode-terminal": "^0.12.0"
+  },
+  "devDependencies": {
+    "vitepress": "^1.6.4"
+  },
+  "allowScripts": {
+    "@whiskeysockets/baileys@6.7.23": true,
+    "protobufjs@7.6.2": true,
+    "sharp@0.34.5": true,
+    "esbuild@0.21.5": true
   }
 }
