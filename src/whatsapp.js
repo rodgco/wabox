@@ -44,17 +44,27 @@ export async function connectWhatsApp({
     if (connection === 'close') {
       const code = lastDisconnect?.error?.output?.statusCode;
       const loggedOut = code === DisconnectReason.loggedOut;
+      // 515 = "restart required": WhatsApp sends this right after QR pairing
+      // completes and the socket MUST be reopened to finish logging in. It's
+      // part of the normal pairing handshake, so honor it even during one-shot
+      // pairing (autoReconnect=false).
+      const restartRequired = code === DisconnectReason.restartRequired;
       if (loggedOut) {
         logger.error(
           'logged out by WhatsApp — delete the auth dir and re-pair',
         );
         return;
       }
-      if (!autoReconnect) {
+      if (!autoReconnect && !restartRequired) {
         logger.info('connection closed');
         return;
       }
-      logger.warn({ code }, 'connection closed, reconnecting...');
+      logger.info(
+        { code },
+        restartRequired
+          ? 'restart required, reconnecting...'
+          : 'connection closed, reconnecting...',
+      );
       // Re-establish; useMultiFileAuthState reloads the saved creds.
       connectWhatsApp({ onMessage, onReady, autoReconnect }).catch((err) =>
         logger.error({ err }, 'reconnect failed'),
