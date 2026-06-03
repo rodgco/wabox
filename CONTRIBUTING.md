@@ -94,6 +94,20 @@ ask for honesty and care:
 - **Don't paste in code you don't have the right to license** under MIT — the
   same rule as any other contribution.
 
+## Releasing (maintainers)
+
+Releases are automated by `scripts/release.mjs`. From a clean `main`:
+
+```bash
+npm run release -- patch        # or: minor | major | an explicit x.y.z
+npm run release -- patch --dry-run   # preview without writing/publishing
+```
+
+It moves `CHANGELOG.md`'s `[Unreleased]` entries under a new dated version,
+bumps `package.json`, commits + tags `vX.Y.Z`, runs `npm publish` (OTP is
+prompted), then pushes. Keep `package.json` at the last published version and
+record changes under `[Unreleased]` between releases.
+
 ## Reporting bugs / requesting features
 
 Open an issue: https://github.com/rodgco/wabox/issues — include your OS,
