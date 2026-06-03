@@ -121,6 +121,10 @@ service (see "Managing the service directly").
 
 ## How it works
 
+> Building the process/agent that consumes the boxes? See
+> **[INTEGRATION.md](INTEGRATION.md)** for the full contract — message format,
+> how to reply, react, send media, format text, and the read-receipt lifecycle.
+
 ### Inbox (incoming)
 
 Each incoming message produces a JSON file in `inbox/`, e.g.
