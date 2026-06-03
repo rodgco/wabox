@@ -1,0 +1,31 @@
+{
+  "name": "wabox",
+  "version": "0.1.0",
+  "description": "A bridge between WhatsApp and the filesystem — incoming messages/files land in an inbox folder, an outbox folder is watched and sent back. Built on Baileys.",
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "wabox": "bin/cli.js"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "config.js",
+    "index.js",
+    "README.md"
+  ],
+  "scripts": {
+    "start": "node bin/cli.js run",
+    "config": "node bin/cli.js config",
+    "dev": "node --watch bin/cli.js run"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.18",
+    "chokidar": "^4.0.3",
+    "pino": "^9.6.0",
+    "qrcode-terminal": "^0.12.0"
+  }
+}

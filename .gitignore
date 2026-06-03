@@ -1,0 +1,9 @@
+node_modules/
+*.log
+
+# Local data should live under ~/.local/share/cowork-zap, but ignore these in
+# case anyone runs with project-relative overrides.
+auth/
+inbox/
+outbox/
+.env
