@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [18.x, 20.x, 22.x]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      # No `npm ci`: these checks only use Node built-ins, and installing the
+      # full dependency tree (Baileys + sharp native build) is slow and flaky.
+      - name: Syntax check
+        run: |
+          for f in bin/cli.js config.js index.js src/*.js scripts/*.mjs; do
+            node --check "$f"
+          done
+
+      - name: Skill is in sync with INTEGRATION.md
+        run: npm run check:skill
