@@ -1,5 +1,10 @@
 # wabox
 
+[![npm version](https://img.shields.io/npm/v/wabox.svg)](https://www.npmjs.com/package/wabox)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Node](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](package.json)
+[![Platforms](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows-blue.svg)](#install)
+
 A bridge between **WhatsApp and your filesystem**. It connects to WhatsApp via
 [Baileys](https://github.com/WhiskeySockets/Baileys), drops every incoming
 message (text + media) into an `inbox/` folder, and watches an `outbox/` folder
@@ -191,3 +196,7 @@ in `config.json` resolve against `<data>`; `~` is expanded.
 - This uses the unofficial WhatsApp Web protocol via Baileys. Use a number you
   control and don't abuse it.
 - Deleting `auth/` forces a fresh QR pairing.
+
+## License
+
+[MIT](LICENSE) © Rodrigo Couto

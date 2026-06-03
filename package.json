@@ -7,12 +7,33 @@
   "bin": {
     "wabox": "bin/cli.js"
   },
+  "author": "Rodrigo Couto <r@rodg.co>",
+  "license": "MIT",
+  "homepage": "https://github.com/rodgco/wabox#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rodgco/wabox.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rodgco/wabox/issues"
+  },
+  "keywords": [
+    "whatsapp",
+    "baileys",
+    "bridge",
+    "gateway",
+    "filesystem",
+    "inbox",
+    "outbox",
+    "cli"
+  ],
   "files": [
     "bin/",
     "src/",
     "config.js",
     "index.js",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "start": "node bin/cli.js run",
