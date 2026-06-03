@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import { config } from '../config.js';
 import { logger } from './logger.js';
 import { connectWhatsApp } from './whatsapp.js';
-import { saveIncoming } from './inbox.js';
+import { saveIncoming, watchInbox } from './inbox.js';
 import { watchOutbox } from './outbox.js';
 
 export async function ensureDirs() {
@@ -22,18 +22,21 @@ export async function startGateway() {
   );
 
   let outboxWatcher;
+  let inboxWatcher;
   await connectWhatsApp({
     onMessage: saveIncoming,
     onReady: async (sock) => {
-      // Rebind the watcher to the live socket (a reconnect makes the old dead).
+      // Rebind the watchers to the live socket (a reconnect kills the old one).
       await outboxWatcher?.close();
       outboxWatcher = watchOutbox(sock);
+      await inboxWatcher?.close();
+      inboxWatcher = watchInbox(sock);
     },
   });
 
   const shutdown = async () => {
     logger.info('shutting down');
-    await outboxWatcher?.close();
+    await Promise.all([outboxWatcher?.close(), inboxWatcher?.close()]);
     process.exit(0);
   };
   process.on('SIGINT', shutdown);

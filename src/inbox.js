@@ -1,8 +1,21 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import chokidar from 'chokidar';
 import { downloadMediaMessage } from '@whiskeysockets/baileys';
 import { config } from '../config.js';
 import { logger, baileysLogger } from './logger.js';
+
+// Maps an inbox `.json` path -> the WhatsApp message key needed to send a read
+// receipt. Populated when a message is saved (and when the watcher first sees a
+// file), consumed when the consumer deletes the file from the inbox.
+const pendingReads = new Map();
+
+function keyFromRecord(rec) {
+  if (!rec?.id || !rec?.from) return null;
+  const key = { remoteJid: rec.from, id: rec.id, fromMe: false };
+  if (rec.participant) key.participant = rec.participant;
+  return key;
+}
 
 // Maps the media message keys Baileys exposes to a friendly type label.
 const MEDIA_KEYS = {
@@ -140,12 +153,66 @@ export async function saveIncoming(sock, m) {
     }
   }
 
-  await fs.writeFile(
-    path.join(config.inboxDir, `${stem}.json`),
-    JSON.stringify(record, null, 2),
-  );
+  const jsonPath = path.join(config.inboxDir, `${stem}.json`);
+  await fs.writeFile(jsonPath, JSON.stringify(record, null, 2));
+
+  // Remember how to acknowledge this message, so that when the consumer removes
+  // the file from the inbox we can send a read receipt to the sender.
+  const key = keyFromRecord(record);
+  if (key) pendingReads.set(jsonPath, key);
+
   logger.info(
     { jid, hasMedia: !!media, preview: text.slice(0, 60) },
     'saved message',
   );
+}
+
+// Watches the inbox. The consumer owns cleanup: when it finishes processing a
+// message it deletes the `.json` from the inbox, and that removal is our signal
+// to mark the message read on WhatsApp (native blue checkmarks).
+export function watchInbox(sock) {
+  const watcher = chokidar.watch(config.inboxDir, {
+    depth: 0, // top level only
+    ignoreInitial: false,
+    awaitWriteFinish: { stabilityThreshold: 500, pollInterval: 100 },
+  });
+
+  // Cache the message key for any `.json` we see (covers files written by us,
+  // pre-existing files on startup, and files dropped in by other tools).
+  const cache = async (filePath) => {
+    if (!filePath.endsWith('.json')) return;
+    if (pendingReads.has(filePath)) return;
+    try {
+      const rec = JSON.parse(await fs.readFile(filePath, 'utf8'));
+      const key = keyFromRecord(rec);
+      if (key) pendingReads.set(filePath, key);
+    } catch {
+      /* partial write or non-JSON — ignore */
+    }
+  };
+
+  watcher.on('add', cache);
+  watcher.on('change', cache);
+
+  watcher.on('unlink', async (filePath) => {
+    if (!filePath.endsWith('.json')) return;
+    const key = pendingReads.get(filePath);
+    if (!key) return; // a media file, or one we never cached
+    pendingReads.delete(filePath);
+    try {
+      await sock.readMessages([key]);
+      logger.info(
+        { jid: key.remoteJid, id: key.id },
+        'message processed → marked read (blue ticks)',
+      );
+    } catch (err) {
+      logger.error(
+        { err, jid: key.remoteJid },
+        'failed to send read receipt',
+      );
+    }
+  });
+
+  logger.info({ dir: config.inboxDir }, 'watching inbox for processed messages');
+  return watcher;
 }

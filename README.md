@@ -128,6 +128,26 @@ Media (images, video, audio, documents, stickers) is downloaded next to the
 JSON, with `media.file` pointing at it. Text-only messages just have
 `"media": null`.
 
+#### Inbox lifecycle & read receipts
+
+**Your consumer owns cleanup.** wabox never deletes inbox files — the process
+that reads them is responsible for removing each `.json` (and any media) once it
+has handled the message.
+
+That deletion is also the **"message read" signal**: when a `.json` leaves the
+`inbox/` folder, wabox sends a native WhatsApp read receipt for that message, so
+the sender sees the blue checkmarks. The flow is:
+
+1. message arrives → `<stem>.json` (+ media) written to `inbox/`, delivered to
+   the sender as usual (grey ticks);
+2. your system reads and processes the file;
+3. your system **deletes** `<stem>.json` from `inbox/`;
+4. wabox marks the message read → the sender sees blue checkmarks.
+
+So a message stays "unread" (for your pipeline and for the sender) until you
+remove it. Blue ticks only appear if both accounts have read receipts enabled in
+WhatsApp.
+
 ### Outbox (outgoing)
 
 To send a message, write a `.json` file into `outbox/`:
