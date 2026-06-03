@@ -106,7 +106,12 @@ export async function saveIncoming(sock, m) {
   const jid = m.key.remoteJid;
   if (jid === 'status@broadcast') return;
   if (!allowed(jid)) {
-    logger.debug({ jid }, 'message skipped (not in ALLOW_FROM)');
+    // Visible by default so you can see who tried to reach a restricted inbox
+    // (and spot numbers you may want to add via `wabox allow add`).
+    logger.info(
+      { number: (jid || '').split('@')[0], name: m.pushName || null },
+      'message rejected — sender not in allow list',
+    );
     return;
   }
 

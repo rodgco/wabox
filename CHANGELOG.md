@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Log rejected senders (phone number + name) at `info` level when the allow list
+  blocks a message, so you can see who tried to reach a restricted inbox.
+
 ## [0.1.4] - 2026-06-03
 
 ### Added
