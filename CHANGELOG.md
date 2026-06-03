@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.7] - 2026-06-03
+
 ### Fixed
 
 - `wabox update` could reinstall the version you already had because npm's cached
@@ -86,7 +88,8 @@ Initial release.
   install via systemd, launchd, or Windows Task Scheduler.
 - MIT license and contribution guidelines, including an AI-assistance policy.
 
-[Unreleased]: https://github.com/rodgco/wabox/compare/v0.1.6...HEAD
+[Unreleased]: https://github.com/rodgco/wabox/compare/v0.1.7...HEAD
+[0.1.7]: https://github.com/rodgco/wabox/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/rodgco/wabox/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/rodgco/wabox/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/rodgco/wabox/compare/v0.1.3...v0.1.4
