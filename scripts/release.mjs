@@ -124,8 +124,17 @@ run('npm', [
 ]);
 console.log(`✓ version set to ${newVersion}`);
 
+// Regenerate the skill from INTEGRATION.md so it can't ship stale.
+run('node', ['scripts/build-skill.mjs']);
+
 // --- 3. commit + tag ---
-run('git', ['add', 'CHANGELOG.md', 'package.json', 'package-lock.json']);
+run('git', [
+  'add',
+  'CHANGELOG.md',
+  'package.json',
+  'package-lock.json',
+  'skills/wabox/SKILL.md',
+]);
 run('git', ['commit', '-m', `release: v${newVersion}`]);
 // Annotated tag (not lightweight) so it carries a message and is pushed below.
 run('git', ['tag', '-a', `v${newVersion}`, '-m', `v${newVersion}`]);

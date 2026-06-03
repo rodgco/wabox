@@ -40,6 +40,10 @@ Requires **Node.js >= 18**. wabox runs on Linux, macOS and Windows.
 The project name lives in one place — `APP` / `DISPLAY_NAME` in `src/paths.js`.
 Don't hardcode it elsewhere; derive from those constants.
 
+`skills/wabox/SKILL.md` is **generated** from `INTEGRATION.md` (the canonical
+consumer guide). Edit `INTEGRATION.md`, then run `npm run build:skill`;
+`npm run check:skill` verifies the two are in sync.
+
 ## Making changes
 
 - **Style**: match the surrounding code. ES modules, 2-space indent, small

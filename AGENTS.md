@@ -30,6 +30,8 @@ justify any new runtime dependency.
 | `src/allow.js`   | Manage the allow list by phone number (offline)                |
 | `src/update.js`  | `wabox update` — npm update + service restart                   |
 | `scripts/release.mjs` | Release automation (dev only, not shipped)                |
+| `scripts/build-skill.mjs` | Generates `skills/wabox/SKILL.md` from `INTEGRATION.md` |
+| `INTEGRATION.md` | Canonical consumer contract; source for the skill              |
 
 ## Invariants & gotchas (read before editing)
 
@@ -58,6 +60,11 @@ justify any new runtime dependency.
 - **Never commit `auth/`** (WhatsApp session credentials). It's gitignored.
 - **Watchers rebind to the live socket** on reconnect (see `onReady` in
   `gateway.js`); module-level state (e.g. inbox key cache) persists across rebinds.
+- **`skills/wabox/SKILL.md` is generated** from `INTEGRATION.md` by
+  `scripts/build-skill.mjs` (frontmatter from `skills/wabox/skill.meta.json`).
+  Never edit the skill by hand — edit `INTEGRATION.md` and run
+  `npm run build:skill`. `npm run check:skill` fails if it's stale (the release
+  regenerates it automatically).
 - **Allow-list matching is by phone number.** When a chat is routed via a LID
   (`@lid`), the real number arrives in `m.key.senderPn` / `participantPn` —
   `allowed()` checks all of those, not just `remoteJid`. Don't regress this back

@@ -1,0 +1,6 @@
+{
+  "name": "wabox",
+  "title": "wabox — WhatsApp via the filesystem",
+  "description": "Read and reply to WhatsApp messages through a wabox inbox/outbox folder pair. Use when a wabox gateway is running and you need to process incoming WhatsApp messages (text or media), reply, react with an emoji, quote-reply, or send files over WhatsApp via the filesystem.",
+  "reference": "https://github.com/rodgco/wabox/blob/main/INTEGRATION.md"
+}

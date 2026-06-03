@@ -41,6 +41,8 @@
     "start": "node bin/cli.js run",
     "config": "node bin/cli.js config",
     "dev": "node --watch bin/cli.js run",
+    "build:skill": "node scripts/build-skill.mjs",
+    "check:skill": "node scripts/build-skill.mjs --check",
     "release": "node scripts/release.mjs"
   },
   "engines": {
