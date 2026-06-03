@@ -157,19 +157,23 @@ JSON, with `media.file` pointing at it. Text-only messages just have
 that reads them is responsible for removing each `.json` (and any media) once it
 has handled the message.
 
-That deletion is also the **"message read" signal**: when a `.json` leaves the
+That removal is also the **"message read" signal**: when a `.json` leaves the
 `inbox/` folder, wabox sends a native WhatsApp read receipt for that message, so
-the sender sees the blue checkmarks. The flow is:
+the sender sees the blue checkmarks. The recommended flow is **read → remove →
+respond**:
 
 1. message arrives → `<stem>.json` (+ media) written to `inbox/`, delivered to
    the sender as usual (grey ticks);
-2. your system reads and processes the file;
-3. your system **deletes** `<stem>.json` from `inbox/`;
-4. wabox marks the message read → the sender sees blue checkmarks.
+2. your consumer reads the file (and any media) into memory, or moves it to a
+   working folder;
+3. your consumer **removes** `<stem>.json` from `inbox/` right away → wabox marks
+   it read and the sender sees blue checkmarks;
+4. your consumer processes the message and writes its reply to `outbox/`.
 
-So a message stays "unread" (for your pipeline and for the sender) until you
-remove it. Blue ticks only appear if both accounts have read receipts enabled in
-WhatsApp.
+Removing on pickup (before processing) means the sender is acknowledged
+immediately, not only once a slow reply is ready. A message stays "unread" until
+you remove it. Blue ticks only appear if both accounts have read receipts enabled
+in WhatsApp. See [INTEGRATION.md](INTEGRATION.md) for the full consumer guide.
 
 ### Outbox (outgoing)
 

@@ -11,16 +11,26 @@ files to `outbox/`. There is no API to call — only files.
 
 ## The loop (read this first)
 
-1. A new message appears as `inbox/<stem>.json` (plus a media file if any).
-2. You read and process it.
-3. **You delete `inbox/<stem>.json`** (and its media) when done.
-4. Deleting the `.json` makes wabox mark the message **read** on WhatsApp (blue
-   checkmarks). So only delete after you've fully handled it.
+The recommended order is **read → remove → respond**:
 
-**You own cleanup.** wabox never deletes inbox files. A message stays "unread"
-(grey ticks) until you remove it. To reply, you separately write a job to
-`outbox/` (sending a reply does not delete the inbox file — deletion is the
-explicit "processed/read" signal).
+1. A new message appears as `inbox/<stem>.json` (plus a media file if any).
+2. **Pick it up:** read the JSON (and any media bytes) into memory, or move the
+   files into your own working folder.
+3. **Remove it from `inbox/` right away** — delete the `.json` (and its media)
+   once you've captured it, or move them out. This is your "I've read this"
+   signal: wabox immediately marks the message **read** on WhatsApp (blue
+   checkmarks).
+4. **Process and respond:** do your work and write the reply job to `outbox/`.
+
+Removing on pickup (step 3) *before* processing (step 4) is deliberate: the
+sender sees the blue checkmarks as soon as your agent has the message — not only
+after a possibly slow reply is ready.
+
+**You own cleanup.** wabox never deletes inbox files; removing each `.json` is
+your job and is the only thing that sends the read receipt. Sending a reply does
+**not** remove it. Just be sure you've captured the JSON *and* any media before
+deleting — deletion removes the media file too. (Prefer **moving** the files to a
+working folder if you want to keep them around while you process.)
 
 ## Reading: inbox message format
 
@@ -144,8 +154,10 @@ render. Paste raw URLs; WhatsApp auto-links them.
 - **Acknowledge with reactions.** A 👍 / 👀 reaction is a cheap "got it /
   working on it" without cluttering the chat.
 - **Match the sender's language.**
-- **Process before deleting.** Deleting the inbox `.json` sends the read receipt,
-  so finish your work (including queuing any outbox reply) first.
+- **Acknowledge on pickup.** Capture the message (read it into memory or move it
+  to your workspace), then remove the `.json` from `inbox/` *before* you start
+  processing — that fires the read receipt right away, so the sender knows you've
+  seen it even if the reply takes a while.
 - **One concern per message** reads better than one long block.
 - **Respect the allow list.** If a chat reaches you, it's already permitted; you
   don't manage access (that's `wabox allow`, run by the operator).
@@ -248,14 +260,19 @@ for DMs; swap in a `…@g.us` JID for groups. Replace ids with the incoming `id`
 
 ```text
 for each new inbox/*.json:
-    msg = read(file)
+    msg = read(file)                              # 1. capture content first
     if msg.media: bytes = read(inbox/msg.media.file)
-    result = handle(msg)                      # your logic
-    write_atomic(outbox/<uuid>.json, {
+
+    delete(file)                                  # 2. remove on pickup
+    if msg.media: delete(inbox/msg.media.file)    #    → marks read NOW (blue ticks)
+    # (or: move both into a working folder instead of deleting)
+
+    result = handle(msg, bytes)                   # 3. process after acking
+
+    write_atomic(outbox/<uuid>.json, {            # 4. respond
         to: msg.number (or msg.from for groups),
         text: result.text,
         replyTo: { id: msg.id },
         files: result.files,
     })
-    delete(file); delete(inbox/msg.media.file)  # → marks read (blue ticks)
 ```
