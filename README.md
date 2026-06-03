@@ -240,7 +240,8 @@ in `config.json` resolve against `<data>`; `~` is expanded.
 ## Contributing
 
 Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for setup,
-how to verify changes, and the AI-assistance policy.
+how to verify changes, and the AI-assistance policy. Working with an AI coding
+agent? Point it at [AGENTS.md](AGENTS.md) for the architecture and key invariants.
 
 ## AI assistance
 

@@ -20,6 +20,9 @@ npm run config
 
 Requires **Node.js >= 18**. wabox runs on Linux, macOS and Windows.
 
+> Using an AI coding agent? [AGENTS.md](AGENTS.md) documents the architecture and
+> the project's key invariants and gotchas — worth a read before any change.
+
 ## Project layout
 
 | Path             | What it does                                                     |
