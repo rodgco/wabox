@@ -51,10 +51,28 @@ Run `wabox status` any time to print the resolved paths and service state.
 wabox config       # interactive setup (config + service + pairing)
 wabox run          # run the gateway in the foreground (what the service runs)
 wabox pair         # (re)pair with WhatsApp via QR
+wabox allow        # manage who can reach the inbox (by phone number)
 wabox update       # update the npm package + restart the service
 wabox status       # show resolved paths + service state
 wabox uninstall    # remove the service (--purge: also config + data)
 ```
+
+### Restricting who can reach the inbox
+
+By default wabox accepts messages from everyone. To limit it to specific people,
+manage an allow list **by phone number** (country code + number, no `+`):
+
+```bash
+wabox allow add 5511999998888      # accepts "+55 (11) 99999-8888" too
+wabox allow add 5511999998888 5511888887777
+wabox allow list
+wabox allow remove 5511999998888
+wabox allow clear                  # back to accepting everyone
+```
+
+Changes are written to `config.json` and the service is restarted automatically
+so they take effect. You only need the **phone number** — not the WhatsApp JID;
+wabox matches incoming senders by number.
 
 ### Managing the service directly
 
