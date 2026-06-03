@@ -39,7 +39,8 @@
   "scripts": {
     "start": "node bin/cli.js run",
     "config": "node bin/cli.js config",
-    "dev": "node --watch bin/cli.js run"
+    "dev": "node --watch bin/cli.js run",
+    "release": "node scripts/release.mjs"
   },
   "engines": {
     "node": ">=18"
