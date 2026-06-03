@@ -33,6 +33,7 @@
     "config.js",
     "index.js",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
   "scripts": {
