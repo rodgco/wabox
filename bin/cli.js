@@ -24,6 +24,7 @@ Usage:
   ${APP} config       Interactive setup (config, service, pairing)
   ${APP} run          Run the gateway in the foreground
   ${APP} pair         (Re)pair with WhatsApp via QR code
+  ${APP} update       Update the npm package and restart the service
   ${APP} status       Show paths and service status
   ${APP} uninstall    Remove the background service (--purge: also data/config)
   ${APP} help         Show this help
@@ -83,6 +84,11 @@ async function main() {
       await pair();
       console.log('✓ Pareado.');
       process.exit(0);
+      break;
+    }
+    case 'update': {
+      const { runUpdate } = await import('../src/update.js');
+      await runUpdate({ version: process.argv[3] || 'latest' });
       break;
     }
     case 'status':

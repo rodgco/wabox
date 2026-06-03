@@ -51,6 +51,7 @@ Run `wabox status` any time to print the resolved paths and service state.
 wabox config       # interactive setup (config + service + pairing)
 wabox run          # run the gateway in the foreground (what the service runs)
 wabox pair         # (re)pair with WhatsApp via QR
+wabox update       # update the npm package + restart the service
 wabox status       # show resolved paths + service state
 wabox uninstall    # remove the service (--purge: also config + data)
 ```

@@ -73,6 +73,11 @@ WantedBy=default.target
         stdio: 'inherit',
       });
     },
+    restart() {
+      execFileSync('systemctl', ['--user', 'restart', name], {
+        stdio: 'inherit',
+      });
+    },
     status() {
       try {
         return execFileSync('systemctl', ['--user', 'is-active', name], {
@@ -160,6 +165,11 @@ function launchdService() {
         /* best effort */
       }
     },
+    restart() {
+      execFileSync('launchctl', ['kickstart', '-k', `${domain()}/${name}`], {
+        stdio: 'inherit',
+      });
+    },
     status() {
       try {
         const out = execFileSync('launchctl', ['list'], { encoding: 'utf8' });
@@ -231,6 +241,14 @@ function schtasksService() {
         /* will start at next logon */
       }
     },
+    restart() {
+      try {
+        execFileSync('schtasks', ['/End', '/TN', name], { stdio: 'ignore' });
+      } catch {
+        /* not running */
+      }
+      execFileSync('schtasks', ['/Run', '/TN', name], { stdio: 'inherit' });
+    },
     status() {
       try {
         execFileSync('schtasks', ['/Query', '/TN', name], { stdio: 'ignore' });
@@ -265,6 +283,9 @@ function noService() {
       return null;
     },
     enable() {
+      throw new Error('no service manager available');
+    },
+    restart() {
       throw new Error('no service manager available');
     },
     status() {
