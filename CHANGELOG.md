@@ -7,7 +7,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- "Waiting for this message. This may take a while." no longer sticks on the
+  recipient's side. Baileys' `getMessage` socket option is now implemented
+  against a disk-persisted LRU (cap 1000) of sent messages under
+  `${dataDir}/sent-cache/`, so when a recipient can't decrypt one of our
+  outbound messages (their session drifted after a restart, re-pair, or
+  offline window) we can re-encrypt and resend against the freshly negotiated
+  session — the standard Baileys remedy for this symptom.
+- `wabox config` / pairing no longer returns before WhatsApp on the phone has
+  finished linking the device. Completion is now tied to Baileys'
+  `receivedPendingNotifications: true` signal (with a 30s safety cap),
+  instead of a fragile 1.5s post-open timer.
+- Media re-upload option for `downloadMediaMessage` was silently dropped after
+  Baileys renamed `reqMediaUpload` → `reuploadRequest`. Expired media URLs can
+  again be recovered.
+
+### Changed
+
+- Baileys socket configuration brought in line with 6.7.x best practices:
+  signal-key store wrapped in `makeCacheableSignalKeyStore` (prevents lost
+  writes under burst load that cause session desync, the upstream of
+  decryption failures); `markOnlineOnConnect: false` (your phone keeps
+  push-notifying while wabox runs); `shouldSyncHistoryMessage: () => false`
+  (skip the full history replay we don't use); `fireInitQueries: false`
+  (skip the WhatsApp Web UI parity queries — props/blocklist/privacy — that
+  occasionally surfaced as a noisy 408 "Timed Out" in `init queries`).
+- Reconnect uses 1s → 30s exponential backoff (instead of immediate retry),
+  so a hard error doesn't tight-loop and reset on a healthy `open`.
+
 ## [0.1.9] - 2026-06-04
+
+### Fixed
+
+- Inbox envelopes are now published atomically (write to a hidden temp name,
+  then rename), so fast consumers reacting in milliseconds can no longer
+  delete a partially-written `.json` and lose the read receipt that would
+  have marked the message read.
+
+### Added
+
+- New `examples/wabox-claude-code.sh` — a ready-to-run bridge between wabox
+  and the Claude Code CLI, with slash commands (`/model`, `/mode`, `/system`,
+  `/help`) for per-conversation overrides.
+
+### Changed
+
+- `PROCESSED_DIR` in the Claude Code bridge example is now configurable.
 
 ## [0.1.8] - 2026-06-03
 

@@ -43,29 +43,44 @@ export async function startGateway() {
   process.on('SIGTERM', shutdown);
 }
 
-// One-shot pairing: connect (printing the QR if needed), wait until the session
-// is open so creds are persisted, then close without reconnecting. Used by the
-// `config` / `pair` commands.
+// One-shot pairing: connect (printing the QR if needed), wait until WhatsApp
+// reports the initial offline batch has been processed, then close. Hooking
+// `receivedPendingNotifications` (rather than the bare 'open' event) is what
+// guarantees the phone's "Linking your device" UI has finished before the CLI
+// returns. 30s cap so a stuck account still lets the CLI exit.
 export async function pair() {
   await ensureDirs();
   await new Promise((resolve, reject) => {
     let done = false;
+    let pairedSock;
+    const finish = (reason) => {
+      if (done) return;
+      done = true;
+      logger.info({ reason }, 'paired — WhatsApp session is ready');
+      // creds.update -> saveCreds is async; let it flush before we tear down.
+      setImmediate(() => {
+        try {
+          pairedSock?.end(undefined);
+        } catch {
+          /* ignore */
+        }
+        resolve();
+      });
+    };
+    const timer = setTimeout(() => {
+      logger.warn('pair: receivedPendingNotifications not seen in 30s — proceeding anyway');
+      finish('timeout-30s');
+    }, 30_000);
     connectWhatsApp({
       autoReconnect: false,
       onMessage: async () => {},
       onReady: (sock) => {
-        if (done) return;
-        done = true;
-        logger.info('paired — WhatsApp session is ready');
-        // Give creds a moment to flush, then close cleanly.
-        setTimeout(() => {
-          try {
-            sock.end(undefined);
-          } catch {
-            /* ignore */
-          }
-          resolve();
-        }, 1500);
+        pairedSock = sock;
+      },
+      onSynced: (sock) => {
+        pairedSock = sock;
+        clearTimeout(timer);
+        finish('received-pending-notifications');
       },
     }).catch(reject);
   });

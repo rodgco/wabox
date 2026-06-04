@@ -169,7 +169,7 @@ export async function saveIncoming(sock, m) {
         m,
         'buffer',
         {},
-        { logger: baileysLogger, reqMediaUpload: sock.updateMediaMessage },
+        { logger: baileysLogger, reuploadRequest: sock.updateMediaMessage },
       );
       const ext = extFor(media.node, media.type);
       const fileName = media.node.fileName || `${stem}.${ext}`;
