@@ -22,6 +22,28 @@
 #   5. Writes the reply atomically into `outbox/` as a valid wabox job
 #      (`to`, `text`, `replyTo`).
 #
+# Slash commands
+# --------------
+# Messages that start with a /command are handled by the agent itself and
+# never reach Claude:
+#   /clear, /reset       forget the saved session for this conversation
+#   /status              show session id, model, mode, system prompt
+#   /ping                quick liveness check; replies "pong"
+#   /model <name>        per-conversation Claude model override (e.g.
+#                        opus, sonnet, haiku, or a full model id).
+#                        /model with no arg shows current; /model default
+#                        removes the override.
+#   /mode <name>         per-conversation --permission-mode override (e.g.
+#                        plan, acceptEdits, bypassPermissions).
+#                        /mode default removes the override.
+#   /system <prompt>     per-conversation system prompt, appended on top
+#                        of SYSTEM_PROMPT_FILE (if set). May span multiple
+#                        lines. /system clear removes it.
+#   /help                list available commands
+# Unknown /commands get a "try /help" reply rather than being forwarded.
+# Model / mode / system overrides survive /clear — they're preferences,
+# not conversation history.
+#
 # Why -p instead of interactive mode
 # ----------------------------------
 # The brief asked for a "persistent Claude process per sender in interactive
@@ -223,6 +245,42 @@ save_session_id() {
   printf '%s\n' "$sid" >"$SESSIONS_DIR/$slug.session"
 }
 
+# Per-conversation model override — set via /model and consumed when
+# building the claude command. Lives alongside the session file.
+model_for() {
+  local f="$SESSIONS_DIR/$1.model"
+  [[ -s "$f" ]] && cat "$f"
+}
+
+save_model_for() {
+  local slug="$1" name="$2"
+  printf '%s\n' "$name" >"$SESSIONS_DIR/$slug.model"
+}
+
+# Per-conversation --permission-mode override. Same lifecycle as model.
+mode_for() {
+  local f="$SESSIONS_DIR/$1.mode"
+  [[ -s "$f" ]] && cat "$f"
+}
+
+save_mode_for() {
+  local slug="$1" name="$2"
+  printf '%s\n' "$name" >"$SESSIONS_DIR/$slug.mode"
+}
+
+# Per-conversation system prompt override. Stored verbatim (no trailing
+# newline added) so multi-line prompts round-trip; appended via
+# --append-system-prompt on top of any global SYSTEM_PROMPT_FILE.
+system_for() {
+  local f="$SESSIONS_DIR/$1.system"
+  [[ -s "$f" ]] && cat "$f"
+}
+
+save_system_for() {
+  local slug="$1" prompt="$2"
+  printf '%s' "$prompt" >"$SESSIONS_DIR/$slug.system"
+}
+
 # ---- Outbox writer ---------------------------------------------------------
 
 # Atomically write a wabox outbox job. wabox treats any *.json in outbox/ as a
@@ -324,7 +382,227 @@ handle_envelope() {
     return 0
   fi
 
-  # ---- Step 5: serialize per-conversation, talk to Claude ----------------
+  # ---- Step 5: agent-level slash commands -------------------------------
+  # /clear and friends manipulate the agent's own state and never reach
+  # Claude. We still write a confirmation to the outbox so the sender sees
+  # the ack (and the blue ticks already fired when we moved the envelope).
+  if [[ "$text" =~ ^/[A-Za-z][A-Za-z0-9_-]*([[:space:]]|$) ]]; then
+    # Pull the command word off the front, keep everything else verbatim
+    # (newlines included) so /system can take a multi-line prompt.
+    local cmd_original cmd_word cmd_args reply_path
+    cmd_original="${text%%[[:space:]]*}"
+    cmd_word="${cmd_original,,}"
+    cmd_args="${text:${#cmd_original}}"
+    cmd_args="${cmd_args#"${cmd_args%%[![:space:]]*}"}"
+    cmd_args="${cmd_args%"${cmd_args##*[![:space:]]}"}"
+    case "$cmd_word" in
+      /clear | /reset)
+        (
+          exec 8>"$LOCKS_DIR/$slug.lock"
+          flock -x 8
+          rm -f -- "$SESSIONS_DIR/$slug.session"
+        )
+        reply_path="$(write_outbox "$to" \
+          "Conversation cleared. The next message will start a fresh Claude session." \
+          "$id" "$stem")"
+        log_info "[$stem] /clear: dropped session for conv=$conv_key → $reply_path"
+        return 0
+        ;;
+      /ping)
+        reply_path="$(write_outbox "$to" "pong" "$id" "$stem")"
+        log_info "[$stem] /ping → $reply_path"
+        return 0
+        ;;
+      /status)
+        local sid_now model_now mode_now system_now system_info status_text
+        sid_now="$(session_id_for "$slug" || true)"
+        model_now="$(model_for "$slug" || true)"
+        mode_now="$(mode_for "$slug" || true)"
+        system_now="$(system_for "$slug" || true)"
+        if [[ -z "$system_now" ]]; then
+          system_info="(none)"
+        else
+          system_info="(set, ${#system_now} chars)"
+        fi
+        status_text="Status:
+conv:    $conv_key
+session: ${sid_now:-(none — next message starts fresh)}
+model:   ${model_now:-(default)}
+mode:    ${mode_now:-(default)}
+system:  $system_info"
+        reply_path="$(write_outbox "$to" "$status_text" "$id" "$stem")"
+        log_info "[$stem] /status → $reply_path"
+        return 0
+        ;;
+      /model)
+        local model_arg="${cmd_args%%[[:space:]]*}"
+        if [[ -z "$model_arg" ]]; then
+          local model_now
+          model_now="$(model_for "$slug" || true)"
+          reply_path="$(write_outbox "$to" \
+            "Current model: ${model_now:-(default)}
+Usage:
+  /model <name>     set per-conversation model (opus, sonnet, haiku, or full id)
+  /model default    remove the override" \
+            "$id" "$stem")"
+          log_info "[$stem] /model (show) → $reply_path"
+          return 0
+        fi
+        if [[ "$model_arg" == "default" || "$model_arg" == "clear" ]]; then
+          (
+            exec 8>"$LOCKS_DIR/$slug.lock"
+            flock -x 8
+            rm -f -- "$SESSIONS_DIR/$slug.model"
+          )
+          reply_path="$(write_outbox "$to" \
+            "Model override removed; using Claude's default." \
+            "$id" "$stem")"
+          log_info "[$stem] /model default → $reply_path"
+          return 0
+        fi
+        # Sanity-check the model name before persisting it — we'll pass it
+        # straight to `claude --model`, so reject anything that looks like
+        # shell metacharacters or an attempt at argument injection.
+        if [[ ! "$model_arg" =~ ^[A-Za-z][A-Za-z0-9._-]{0,63}$ ]]; then
+          reply_path="$(write_outbox "$to" \
+            "Invalid model name: $model_arg" \
+            "$id" "$stem")"
+          log_warn "[$stem] /model rejected name=$model_arg → $reply_path"
+          return 0
+        fi
+        (
+          exec 8>"$LOCKS_DIR/$slug.lock"
+          flock -x 8
+          save_model_for "$slug" "$model_arg"
+        )
+        reply_path="$(write_outbox "$to" \
+          "Model for this conversation set to: $model_arg" \
+          "$id" "$stem")"
+        log_info "[$stem] /model → $model_arg → $reply_path"
+        return 0
+        ;;
+      /mode)
+        local mode_arg="${cmd_args%%[[:space:]]*}"
+        if [[ -z "$mode_arg" ]]; then
+          local mode_now
+          mode_now="$(mode_for "$slug" || true)"
+          reply_path="$(write_outbox "$to" \
+            "Current mode: ${mode_now:-(default from CLAUDE_ARGS)}
+Usage:
+  /mode <name>      set per-conversation --permission-mode
+                    (e.g. plan, acceptEdits, bypassPermissions)
+  /mode default     remove the override" \
+            "$id" "$stem")"
+          log_info "[$stem] /mode (show) → $reply_path"
+          return 0
+        fi
+        if [[ "$mode_arg" == "default" || "$mode_arg" == "clear" ]]; then
+          (
+            exec 8>"$LOCKS_DIR/$slug.lock"
+            flock -x 8
+            rm -f -- "$SESSIONS_DIR/$slug.mode"
+          )
+          reply_path="$(write_outbox "$to" \
+            "Mode override removed; using CLAUDE_ARGS default." \
+            "$id" "$stem")"
+          log_info "[$stem] /mode default → $reply_path"
+          return 0
+        fi
+        # Same safety check as /model — this gets passed verbatim to
+        # `claude --permission-mode`.
+        if [[ ! "$mode_arg" =~ ^[A-Za-z][A-Za-z0-9_-]{0,31}$ ]]; then
+          reply_path="$(write_outbox "$to" \
+            "Invalid mode name: $mode_arg" \
+            "$id" "$stem")"
+          log_warn "[$stem] /mode rejected name=$mode_arg → $reply_path"
+          return 0
+        fi
+        (
+          exec 8>"$LOCKS_DIR/$slug.lock"
+          flock -x 8
+          save_mode_for "$slug" "$mode_arg"
+        )
+        reply_path="$(write_outbox "$to" \
+          "Mode for this conversation set to: $mode_arg" \
+          "$id" "$stem")"
+        log_info "[$stem] /mode → $mode_arg → $reply_path"
+        return 0
+        ;;
+      /system)
+        # /system takes the *entire rest* of the message (newlines kept),
+        # so a multi-line prompt works. The literal tokens "clear" and
+        # "default" are reserved for removal — to use one of those as your
+        # actual prompt, prepend a space, capitalize, or add punctuation.
+        if [[ -z "$cmd_args" ]]; then
+          local system_now
+          system_now="$(system_for "$slug" || true)"
+          if [[ -z "$system_now" ]]; then
+            reply_path="$(write_outbox "$to" \
+              "No system prompt set for this conversation.
+Usage:
+  /system <prompt>     set (can span multiple lines)
+  /system clear        remove" \
+              "$id" "$stem")"
+          else
+            reply_path="$(write_outbox "$to" \
+              "Current system prompt (${#system_now} chars):
+$system_now" \
+              "$id" "$stem")"
+          fi
+          log_info "[$stem] /system (show) → $reply_path"
+          return 0
+        fi
+        if [[ "$cmd_args" == "clear" || "$cmd_args" == "default" ]]; then
+          (
+            exec 8>"$LOCKS_DIR/$slug.lock"
+            flock -x 8
+            rm -f -- "$SESSIONS_DIR/$slug.system"
+          )
+          reply_path="$(write_outbox "$to" \
+            "System prompt removed for this conversation." \
+            "$id" "$stem")"
+          log_info "[$stem] /system clear → $reply_path"
+          return 0
+        fi
+        (
+          exec 8>"$LOCKS_DIR/$slug.lock"
+          flock -x 8
+          save_system_for "$slug" "$cmd_args"
+        )
+        reply_path="$(write_outbox "$to" \
+          "System prompt set for this conversation (${#cmd_args} chars)." \
+          "$id" "$stem")"
+        log_info "[$stem] /system → set (${#cmd_args} chars) → $reply_path"
+        return 0
+        ;;
+      /help)
+        reply_path="$(write_outbox "$to" \
+          "Available commands:
+/clear           forget this conversation and start fresh
+/status          show session id, model, mode, system prompt
+/ping            quick liveness check
+/model <name>    set per-conversation model (opus, sonnet, haiku, or full id)
+/model default   remove the model override
+/mode <name>     set per-conversation --permission-mode
+/mode default    remove the mode override
+/system <text>   set per-conversation system prompt (multi-line ok)
+/system clear    remove the system prompt
+/help            show this message" \
+          "$id" "$stem")"
+        log_info "[$stem] /help → $reply_path"
+        return 0
+        ;;
+      *)
+        reply_path="$(write_outbox "$to" \
+          "Unknown command: ${cmd_word}. Try /help." \
+          "$id" "$stem")"
+        log_info "[$stem] unknown slash command $cmd_word → $reply_path"
+        return 0
+        ;;
+    esac
+  fi
+
+  # ---- Step 6: serialize per-conversation, talk to Claude ----------------
   # The flock ensures messages from the *same* sender are processed in order
   # (so the session file doesn't race), while different senders run in
   # parallel via the per-conversation lockfile.
@@ -341,6 +619,22 @@ handle_envelope() {
     cmd+=(-p --output-format json)
     if [[ -n "$SYSTEM_PROMPT_FILE" && -r "$SYSTEM_PROMPT_FILE" ]]; then
       cmd+=(--append-system-prompt "$(cat -- "$SYSTEM_PROMPT_FILE")")
+    fi
+    local model_override
+    model_override="$(model_for "$slug" || true)"
+    if [[ -n "$model_override" ]]; then
+      cmd+=(--model "$model_override")
+    fi
+    local mode_override
+    mode_override="$(mode_for "$slug" || true)"
+    if [[ -n "$mode_override" ]]; then
+      # Comes after CLAUDE_ARGS so it overrides any --permission-mode there.
+      cmd+=(--permission-mode "$mode_override")
+    fi
+    local system_override
+    system_override="$(system_for "$slug" || true)"
+    if [[ -n "$system_override" ]]; then
+      cmd+=(--append-system-prompt "$system_override")
     fi
     if [[ -n "$sid_existing" ]]; then
       cmd+=(--resume "$sid_existing")
