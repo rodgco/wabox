@@ -189,12 +189,21 @@ export async function saveIncoming(sock, m) {
   }
 
   const jsonPath = path.join(config.inboxDir, `${stem}.json`);
-  await fs.writeFile(jsonPath, JSON.stringify(record, null, 2));
+  const tmpPath = path.join(config.inboxDir, `.${stem}.json.tmp`);
 
-  // Remember how to acknowledge this message, so that when the consumer removes
-  // the file from the inbox we can send a read receipt to the sender.
+  // Register the read-receipt key BEFORE the envelope becomes visible. A fast
+  // consumer (inotify-based scripts react in milliseconds) can move the file
+  // out before we'd otherwise finish bookkeeping, so the map needs to be ready
+  // the instant the rename below lands.
   const key = keyFromRecord(record);
   if (key) pendingReads.set(jsonPath, key);
+
+  // Publish atomically: write to a hidden temp name in the same dir, then
+  // rename. The rename is a single FS op, so the watcher sees the envelope
+  // appear complete — no need for awaitWriteFinish stabilization, which would
+  // race with consumers that delete the file inside that 500ms window.
+  await fs.writeFile(tmpPath, JSON.stringify(record, null, 2));
+  await fs.rename(tmpPath, jsonPath);
 
   logger.info(
     { jid, hasMedia: !!media, preview: text.slice(0, 60) },
@@ -209,7 +218,10 @@ export function watchInbox(sock) {
   const watcher = chokidar.watch(config.inboxDir, {
     depth: 0, // top level only
     ignoreInitial: false,
-    awaitWriteFinish: { stabilityThreshold: 500, pollInterval: 100 },
+    // No awaitWriteFinish: envelopes are published via atomic rename in
+    // processIncomingMessage, so they appear complete in a single FS event.
+    // Stabilization would only delay the `add` and cause chokidar to drop the
+    // `unlink` when a fast consumer removes the file before the 500ms window.
   });
 
   // Cache the message key for any `.json` we see (covers files written by us,
