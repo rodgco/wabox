@@ -3,6 +3,7 @@ import path from 'node:path';
 import chokidar from 'chokidar';
 import { config } from '../config.js';
 import { logger } from './logger.js';
+import { lookupLid } from './lidMap.js';
 
 const SENT_DIR = path.join(config.outboxDir, 'sent');
 const FAILED_DIR = path.join(config.outboxDir, 'failed');
@@ -30,10 +31,31 @@ function kindFor(ext) {
 }
 
 // Accept a bare number ("5511999998888"), a full user JID, or a group JID.
-function normalizeJid(to) {
+//
+// For phone-number-shaped targets we also consult lidMap: if the contact has
+// recently messaged us on `@lid`, we rewrite the reply to that LID. The same
+// contact has two Signal sessions (one per identity) and replying on the
+// wrong one desyncs the recipient's view, sticking their WhatsApp on
+// "Waiting for this message". Groups, explicit LIDs, broadcasts, and any
+// non-numeric JID pass through unchanged.
+async function normalizeJid(to) {
   if (!to) throw new Error('outbox message missing "to"');
-  if (to.includes('@')) return to;
-  const digits = to.replace(/[^0-9]/g, '');
+  if (
+    to.endsWith('@g.us') ||
+    to.endsWith('@lid') ||
+    to.endsWith('@broadcast') ||
+    to.endsWith('@newsletter')
+  ) {
+    return to;
+  }
+  const local = to.split('@')[0].split(':')[0];
+  const digits = local.replace(/[^0-9]/g, '');
+  if (!digits) return to; // not phone-shaped — respect verbatim
+  const lid = await lookupLid(digits);
+  if (lid) {
+    logger.info({ number: digits, lid }, 'outbox: routing via known LID');
+    return lid;
+  }
   return `${digits}@s.whatsapp.net`;
 }
 
@@ -98,7 +120,7 @@ async function processFile(sock, filePath) {
     throw new Error('invalid JSON');
   }
 
-  const jid = normalizeJid(job.to);
+  const jid = await normalizeJid(job.to);
 
   // A reaction can be the whole job, or ride alongside a text/file reply.
   if (job.react) {

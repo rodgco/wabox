@@ -4,6 +4,7 @@ import chokidar from 'chokidar';
 import { downloadMediaMessage } from '@whiskeysockets/baileys';
 import { config } from '../config.js';
 import { logger, baileysLogger } from './logger.js';
+import { recordLid } from './lidMap.js';
 
 // Maps an inbox `.json` path -> the WhatsApp message key needed to send a read
 // receipt. Populated when a message is saved (and when the watcher first sees a
@@ -132,6 +133,16 @@ export async function saveIncoming(sock, m) {
   const jid = m.key.remoteJid;
   if (jid === 'status@broadcast') return;
   const number = senderNumber(m);
+  // When the chat is LID-routed (`@lid`), remember the LID for this phone
+  // number so the outbox can rewrite replies back onto the same identity.
+  // If the bot replies via `<number>@s.whatsapp.net` while inbound is on
+  // `@lid`, the two Signal sessions for the same contact desync and the
+  // recipient gets stuck on "Waiting for this message".
+  if (jid?.endsWith('@lid') && number) {
+    recordLid(number, jid).catch((err) =>
+      logger.error({ err, number, jid }, 'lidMap: record failed'),
+    );
+  }
   if (!allowed(m)) {
     // Visible by default so you can see who tried to reach a restricted inbox
     // (and spot numbers you may want to add via `wabox allow add`).

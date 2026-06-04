@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- "Waiting for this message. This may take a while." caused by replying on
+  the wrong identity for LID-routed contacts. WhatsApp runs 1:1 chats over
+  two parallel identities (`<number>@s.whatsapp.net` and `<lid>@lid`) with
+  independent Signal sessions — receiving on `@lid` and replying on
+  `@s.whatsapp.net` desyncs the recipient's counter from ours. Wabox now
+  records the LID for every phone number we see on `@lid` (persisted to
+  `${dataDir}/lid-map.json`) and the outbox auto-rewrites bare-number or
+  `@s.whatsapp.net` reply targets to the known LID so the reply rides the
+  same session as the inbound. Groups, explicit `@lid`/`@broadcast`/
+  `@newsletter` targets are passed through unchanged.
 - "Waiting for this message. This may take a while." persisting across wabox
   restarts. Baileys' bundled `useMultiFileAuthState` writes signal-key files
   with truncate-and-write-in-place, so a SIGKILL mid-write (typical under
