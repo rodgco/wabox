@@ -9,54 +9,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- "Waiting for this message. This may take a while." caused by replying on
-  the wrong identity for LID-routed contacts. WhatsApp runs 1:1 chats over
-  two parallel identities (`<number>@s.whatsapp.net` and `<lid>@lid`) with
-  independent Signal sessions — receiving on `@lid` and replying on
-  `@s.whatsapp.net` desyncs the recipient's counter from ours. Wabox now
-  records the LID for every phone number we see on `@lid` (persisted to
-  `${dataDir}/lid-map.json`) and the outbox auto-rewrites bare-number or
-  `@s.whatsapp.net` reply targets to the known LID so the reply rides the
-  same session as the inbound. Groups, explicit `@lid`/`@broadcast`/
-  `@newsletter` targets are passed through unchanged.
-- "Waiting for this message. This may take a while." persisting across wabox
-  restarts. Baileys' bundled `useMultiFileAuthState` writes signal-key files
-  with truncate-and-write-in-place, so a SIGKILL mid-write (typical under
-  `node --watch` during dev, or any hot restart) leaves a `session-<jid>.json`
-  torn; on next start `JSON.parse` throws, Baileys treats the session as
-  absent, our Signal counters desync from the recipient's, and every
-  subsequent message to that contact sticks indefinitely. Replaced with
-  `useAtomicAuthState` (`src/authState.js`) — a drop-in that writes
-  via tmp + `rename`, so any abrupt termination leaves either the old file
-  intact or the new file fully in place. Fresh re-pair recommended after this
-  upgrade if you'd already accumulated stuck contacts.
-- "Waiting for this message. This may take a while." no longer sticks on the
-  recipient's side. Baileys' `getMessage` socket option is now implemented
-  against a disk-persisted LRU (cap 1000) of sent messages under
-  `${dataDir}/sent-cache/`, so when a recipient can't decrypt one of our
-  outbound messages (their session drifted after a restart, re-pair, or
-  offline window) we can re-encrypt and resend against the freshly negotiated
-  session — the standard Baileys remedy for this symptom.
-- `wabox config` / pairing no longer returns before WhatsApp on the phone has
-  finished linking the device. Completion is now tied to Baileys'
-  `receivedPendingNotifications: true` signal (with a 30s safety cap),
-  instead of a fragile 1.5s post-open timer.
-- Media re-upload option for `downloadMediaMessage` was silently dropped after
-  Baileys renamed `reqMediaUpload` → `reuploadRequest`. Expired media URLs can
-  again be recovered.
+- **"Waiting for this message. This may take a while."** — addressed three
+  independent root causes that all surface as the same stuck-bubble symptom
+  on the recipient's side:
+  - *Missing `getMessage` callback.* Baileys' documented remedy for
+    retry-receipts. Implemented against a disk-persisted LRU (cap 1000) of
+    sent messages under `${dataDir}/sent-cache/`, so when a recipient can't
+    decrypt one of our outbound messages we re-encrypt against the freshly
+    negotiated session and resend.
+  - *Torn signal-key writes on abrupt termination.* Baileys' bundled
+    `useMultiFileAuthState` writes `session-<jid>.json` with
+    truncate-and-write-in-place — a SIGKILL mid-write (typical under
+    `node --watch` in dev, or any hot restart) tears the JSON. On next start
+    `JSON.parse` throws, Baileys treats the session as absent, and every
+    subsequent message to that contact sticks. Replaced with
+    `useAtomicAuthState` (`src/authState.js`): write-to-tmp + atomic
+    `rename`.
+  - *Dual-identity routing for LID-routed contacts.* WhatsApp runs 1:1
+    chats over two parallel identities (`<number>@s.whatsapp.net` and
+    `<lid>@lid`) with independent Signal sessions. Receiving on `@lid` and
+    replying on `@s.whatsapp.net` desyncs the recipient's counter from ours.
+    Wabox now records the LID for every phone number we see on `@lid`
+    (persisted to `${dataDir}/lid-map.json`) and the outbox auto-rewrites
+    bare-number / `@s.whatsapp.net` reply targets to the known LID. Groups
+    and explicit `@lid`/`@broadcast`/`@newsletter` targets pass through
+    unchanged. The `examples/wabox-claude-code.sh` bridge was also updated
+    to reply on `from` directly so any consumer using it gets the right
+    routing for free.
+
+  A fresh re-pair is recommended if you'd already accumulated stuck
+  contacts from previous corrupted-state runs.
+
+- `wabox config` / pairing no longer returns before WhatsApp on the phone
+  has finished linking. Completion is now tied to Baileys'
+  `receivedPendingNotifications: true` (with a 30s safety cap) instead of a
+  1.5s post-open timer.
+
+- Noisy 408 "Timed Out" in `init queries`. The post-open
+  `fetchProps / fetchBlocklist / fetchPrivacySettings` batch exists for
+  WhatsApp Web UI parity and is unused here. Disabled via
+  `fireInitQueries: false`.
+
+- Media re-upload option for `downloadMediaMessage` was silently dropped
+  after Baileys renamed `reqMediaUpload` → `reuploadRequest`. Expired media
+  URLs can be recovered again.
 
 ### Changed
 
-- Baileys socket configuration brought in line with 6.7.x best practices:
-  signal-key store wrapped in `makeCacheableSignalKeyStore` (prevents lost
-  writes under burst load that cause session desync, the upstream of
-  decryption failures); `markOnlineOnConnect: false` (your phone keeps
+- Baileys socket configuration aligned with 6.7.x best practices:
+  `state.keys` wrapped in `makeCacheableSignalKeyStore` (in-memory read
+  cache, fewer disk reads); `markOnlineOnConnect: false` (your phone keeps
   push-notifying while wabox runs); `shouldSyncHistoryMessage: () => false`
-  (skip the full history replay we don't use); `fireInitQueries: false`
-  (skip the WhatsApp Web UI parity queries — props/blocklist/privacy — that
-  occasionally surfaced as a noisy 408 "Timed Out" in `init queries`).
-- Reconnect uses 1s → 30s exponential backoff (instead of immediate retry),
-  so a hard error doesn't tight-loop and reset on a healthy `open`.
+  (skip the history replay we don't use — `receivedPendingNotifications`
+  lands in seconds instead of minutes on busy accounts).
+- Reconnect uses 1s → 30s exponential backoff instead of immediate retry;
+  resets on a healthy `open`.
 
 ## [0.1.9] - 2026-06-04
 
