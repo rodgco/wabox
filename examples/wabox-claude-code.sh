@@ -344,10 +344,9 @@ handle_envelope() {
   log_debug "[$stem] moved to $PROCESSED_DIR (read receipt fired)"
 
   # ---- Step 4: extract the bits we need ---------------------------------
-  local id from number participant text from_me is_group conv_key slug
+  local id from participant text from_me conv_key slug
   id="$(jq -r '.id        // empty' <<<"$envelope")"
   from="$(jq -r '.from    // empty' <<<"$envelope")"
-  number="$(jq -r '.number // empty' <<<"$envelope")"
   participant="$(jq -r '.participant // empty' <<<"$envelope")"
   text="$(jq -r '.text    // empty' <<<"$envelope")"
   from_me="$(jq -r '.fromMe // false' <<<"$envelope")"
@@ -361,14 +360,16 @@ handle_envelope() {
     return 1
   fi
 
-  is_group=0
-  [[ "$from" == *@g.us ]] && is_group=1
-
-  # WhatsApp "to" — bare number for DMs, group JID for groups
-  local to
-  if ((is_group)); then to="$from"; else to="$number"; fi
+  # Always reply on the exact JID the message arrived on. WhatsApp 1:1 chats
+  # can be routed via either `<number>@s.whatsapp.net` or `<lid>@lid`, and
+  # each identity has its own Signal session. Replying on the wrong one
+  # desyncs the session and the recipient gets stuck on
+  # "Waiting for this message" — so we mirror the inbound JID verbatim.
+  # Groups (`<gid>@g.us`) carry the right JID in `from` too, so this works
+  # uniformly for DMs and groups.
+  local to="$from"
   if [[ -z "$to" ]]; then
-    log_error "[$stem] could not determine reply target (no number/from)"
+    log_error "[$stem] envelope has no 'from'; cannot route reply"
     return 1
   fi
 
