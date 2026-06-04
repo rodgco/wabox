@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Replaced `examples/wabox-claude-code.sh` with a minimal
+  `examples/echo-bridge.sh`. The full Claude Code bridge moved to its own
+  project, [wabox-bot](https://github.com/rodgco/wabox-bot), where it has
+  room to grow as a pluggable agent framework (Claude Code by default;
+  echo + room for aider, codex, raw-API, …). The new in-tree example is a
+  ~30-line learning artifact for anyone writing their own consumer. For
+  users of the old script, env vars, slash commands, and Claude session
+  history all carry over automatically — see the
+  [migration guide](https://github.com/rodgco/wabox-bot/blob/main/docs/migrating-from-wabox-claude-code.md).
+
 ## [0.1.10] - 2026-06-04
 
 ### Fixed
