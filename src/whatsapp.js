@@ -1,5 +1,4 @@
 import makeWASocket, {
-  useMultiFileAuthState,
   fetchLatestBaileysVersion,
   makeCacheableSignalKeyStore,
   DisconnectReason,
@@ -13,6 +12,7 @@ import {
   putSentMessage,
   getSentMessage,
 } from './sentCache.js';
+import { useAtomicAuthState } from './authState.js';
 
 // Opens (and keeps open) a WhatsApp connection.
 //   onMessage(sock, m)  — every fresh incoming message
@@ -29,7 +29,12 @@ export async function connectWhatsApp({
   autoReconnect = true,
 }) {
   await initSentCache();
-  const { state, saveCreds } = await useMultiFileAuthState(config.authDir);
+  // useAtomicAuthState is a drop-in replacement for Baileys'
+  // useMultiFileAuthState that writes via tmp+rename. The vanilla helper
+  // truncates-in-place, so a SIGKILL mid-write (dev `node --watch`, hot
+  // restart) tears a session-<jid>.json — and once that's null on next start,
+  // the recipient permanently sticks on "Waiting for this message".
+  const { state, saveCreds } = await useAtomicAuthState(config.authDir);
   const { version } = await fetchLatestBaileysVersion();
 
   const sock = makeWASocket({

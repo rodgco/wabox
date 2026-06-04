@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- "Waiting for this message. This may take a while." persisting across wabox
+  restarts. Baileys' bundled `useMultiFileAuthState` writes signal-key files
+  with truncate-and-write-in-place, so a SIGKILL mid-write (typical under
+  `node --watch` during dev, or any hot restart) leaves a `session-<jid>.json`
+  torn; on next start `JSON.parse` throws, Baileys treats the session as
+  absent, our Signal counters desync from the recipient's, and every
+  subsequent message to that contact sticks indefinitely. Replaced with
+  `useAtomicAuthState` (`src/authState.js`) — a drop-in that writes
+  via tmp + `rename`, so any abrupt termination leaves either the old file
+  intact or the new file fully in place. Fresh re-pair recommended after this
+  upgrade if you'd already accumulated stuck contacts.
 - "Waiting for this message. This may take a while." no longer sticks on the
   recipient's side. Baileys' `getMessage` socket option is now implemented
   against a disk-persisted LRU (cap 1000) of sent messages under
