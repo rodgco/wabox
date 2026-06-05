@@ -127,9 +127,10 @@ console.log(`✓ version set to ${newVersion}`);
 // Regenerate the skill from INTEGRATION.md so it can't ship stale.
 run('node', ['scripts/build-skill.mjs']);
 
-// Rebuild the docs site so the GitHub Pages source (/docs) can't ship stale —
-// it pulls the bumped version (nav badge) and the dated changelog page.
-run('npm', ['run', 'docs:build']);
+// The docs site is built and deployed by GitHub Actions
+// (.github/workflows/deploy-docs.yml), which triggers on package.json changes —
+// so the version bump pushed in step 5 redeploys the docs automatically. We no
+// longer build or commit /docs here (it is gitignored).
 
 // --- 3. commit + tag ---
 run('git', [
@@ -138,7 +139,6 @@ run('git', [
   'package.json',
   'package-lock.json',
   'skills/wabox/SKILL.md',
-  'docs',
 ]);
 run('git', ['commit', '-m', `release: v${newVersion}`]);
 // Annotated tag (not lightweight) so it carries a message and is pushed below.
