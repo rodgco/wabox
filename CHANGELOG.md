@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   users of the old script, env vars, slash commands, and Claude session
   history all carry over automatically — see the
   [migration guide](https://github.com/wabox-app/wabox-bot/blob/main/docs/migrating-from-wabox-claude-code.md).
+- Moved the project to the **wabox-app** GitHub organization. The `repository`,
+  `homepage`, and issue links now point to `wabox-app/wabox`; the old
+  `rodgco/wabox` URLs continue to redirect.
 
 ## [0.1.10] - 2026-06-04
 
