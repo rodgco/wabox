@@ -8,6 +8,8 @@ inbox/
 outbox/
 .env
 
-# VitePress (the built site is committed under /docs and is NOT ignored).
+# VitePress — the site is built and deployed by GitHub Actions
+# (.github/workflows/deploy-docs.yml), so the build output is NOT committed.
 website/.vitepress/cache/
 website/.vitepress/dist/
+docs/

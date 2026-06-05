@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="wabox">
-  <rect width="64" height="64" rx="14" fill="#0d1b2a"/>
-  <path d="M32 11 L50 22 V42 L32 53 L14 42 V22 Z"
-        fill="#123a2a" stroke="#3ddc84" stroke-width="3" stroke-linejoin="round"/>
-  <text x="32" y="42" text-anchor="middle"
-        font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif"
-        font-weight="800" font-size="24" fill="#bff5d6">w</text>
-</svg>
