@@ -49,7 +49,7 @@ export default defineConfig({
           { text: 'Changelog', link: '/changelog' },
           {
             text: 'Releases',
-            link: 'https://github.com/rodgco/wabox/releases',
+            link: 'https://github.com/wabox-app/wabox/releases',
           },
         ],
       },
@@ -84,10 +84,10 @@ export default defineConfig({
       },
     ],
 
-    socialLinks: [{ icon: 'github', link: 'https://github.com/rodgco/wabox' }],
+    socialLinks: [{ icon: 'github', link: 'https://github.com/wabox-app/wabox' }],
 
     editLink: {
-      pattern: 'https://github.com/rodgco/wabox/edit/main/website/:path',
+      pattern: 'https://github.com/wabox-app/wabox/edit/main/website/:path',
       text: 'Edit this page on GitHub',
     },
 

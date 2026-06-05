@@ -1,6 +1,6 @@
 # wabox
 
-[![CI](https://github.com/rodgco/wabox/actions/workflows/ci.yml/badge.svg)](https://github.com/rodgco/wabox/actions/workflows/ci.yml)
+[![CI](https://github.com/wabox-app/wabox/actions/workflows/ci.yml/badge.svg)](https://github.com/wabox-app/wabox/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/wabox.svg)](https://www.npmjs.com/package/wabox)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](package.json)
@@ -149,10 +149,10 @@ service (see "Managing the service directly").
 <!-- #region howitworks -->
 
 > Building the process/agent that consumes the boxes? See
-> **[INTEGRATION.md](https://github.com/rodgco/wabox/blob/main/INTEGRATION.md)** for the full contract — message format,
+> **[INTEGRATION.md](https://github.com/wabox-app/wabox/blob/main/INTEGRATION.md)** for the full contract — message format,
 > how to reply, react, send media, format text, and the read-receipt lifecycle.
 > Or install the skill so your agent already knows it:
-> `npx skills add rodgco/wabox` (see [`skills/wabox`](https://github.com/rodgco/wabox/blob/main/skills/wabox/SKILL.md)).
+> `npx skills add wabox-app/wabox` (see [`skills/wabox`](https://github.com/wabox-app/wabox/blob/main/skills/wabox/SKILL.md)).
 
 ### Inbox (incoming)
 
@@ -202,7 +202,7 @@ respond**:
 Removing on pickup (before processing) means the sender is acknowledged
 immediately, not only once a slow reply is ready. A message stays "unread" until
 you remove it. Blue ticks only appear if both accounts have read receipts enabled
-in WhatsApp. See [INTEGRATION.md](https://github.com/rodgco/wabox/blob/main/INTEGRATION.md) for the full consumer guide.
+in WhatsApp. See [INTEGRATION.md](https://github.com/wabox-app/wabox/blob/main/INTEGRATION.md) for the full consumer guide.
 
 ### Outbox (outgoing)
 
