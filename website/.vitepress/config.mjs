@@ -10,7 +10,7 @@ const pkg = JSON.parse(
 export default defineConfig({
   title: 'wabox',
   description:
-    'A bridge between WhatsApp and your filesystem — incoming messages land in an inbox folder, an outbox folder is watched and sent back. No API to learn, just files.',
+    'Connect any chat channel to your filesystem — messages land in an inbox folder, drop a file in outbox to reply. No API to learn, just files. WhatsApp today; Slack, Discord & Telegram on the roadmap.',
   lang: 'en-US',
 
   // GitHub Pages project site lives at https://rodgco.github.io/wabox/
