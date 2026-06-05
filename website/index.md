@@ -3,8 +3,8 @@ layout: home
 
 hero:
   name: wabox
-  text: WhatsApp ↔ your filesystem
-  tagline: Incoming messages land in an inbox folder; drop a JSON in outbox to reply. No API to learn — just files. Built on Baileys.
+  text: the filesystem is the API
+  tagline: Connect any chat channel to your filesystem — messages land in an inbox folder, drop a file in outbox to reply. No API to learn, just files. WhatsApp today; Slack, Discord & Telegram on the roadmap.
   image:
     src: /logo.svg
     alt: wabox
