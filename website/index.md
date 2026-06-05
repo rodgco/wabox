@@ -3,8 +3,8 @@ layout: home
 
 hero:
   name: wabox
-  text: WhatsApp ↔ your filesystem
-  tagline: Incoming messages land in an inbox folder; drop a JSON in outbox to reply. No API to learn — just files. Built on Baileys.
+  text: the filesystem is the API
+  tagline: Connect any chat channel to your filesystem — messages land in an inbox folder, drop a file in outbox to reply. No API to learn, just files. WhatsApp today; Slack, Discord & Telegram on the roadmap.
   image:
     src: /logo.svg
     alt: wabox
@@ -17,7 +17,7 @@ hero:
       link: /integration
     - theme: alt
       text: View on GitHub
-      link: https://github.com/rodgco/wabox
+      link: https://github.com/wabox-app/wabox
 
 features:
   - icon: 📥
@@ -28,7 +28,7 @@ features:
     details: Write a small JSON job to send text, files, quote-replies and emoji reactions. wabox watches and sends.
   - icon: 🤖
     title: Agent-ready
-    details: Point any process at the two folders, or install the skill — npx skills add rodgco/wabox — and your agent knows the contract.
+    details: Point any process at the two folders, or install the skill — npx skills add wabox-app/wabox — and your agent knows the contract.
   - icon: 🖥️
     title: Runs as a service
     details: One interactive setup installs a background service (systemd / launchd / Task Scheduler) that starts on login.
