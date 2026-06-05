@@ -7,7 +7,7 @@ docs fixes, and features are all welcome.
 ## Getting started
 
 ```bash
-git clone git@github.com:rodgco/wabox.git
+git clone git@github.com:wabox-app/wabox.git
 cd wabox
 npm install
 
@@ -20,7 +20,7 @@ npm run config
 
 Requires **Node.js >= 18**. wabox runs on Linux, macOS and Windows.
 
-> Using an AI coding agent? [AGENTS.md](https://github.com/rodgco/wabox/blob/main/AGENTS.md) documents the architecture and
+> Using an AI coding agent? [AGENTS.md](https://github.com/wabox-app/wabox/blob/main/AGENTS.md) documents the architecture and
 > the project's key invariants and gotchas — worth a read before any change.
 
 ## Project layout
@@ -117,11 +117,11 @@ record changes under `[Unreleased]` between releases.
 
 ## Reporting bugs / requesting features
 
-Open an issue: https://github.com/rodgco/wabox/issues — include your OS,
+Open an issue: https://github.com/wabox-app/wabox/issues — include your OS,
 Node version, and steps to reproduce. For anything involving message handling, a
 redacted example of the inbox/outbox JSON is very helpful.
 
 ## License
 
 By contributing, you agree that your contributions are licensed under the
-project's [MIT License](https://github.com/rodgco/wabox/blob/main/LICENSE).
+project's [MIT License](https://github.com/wabox-app/wabox/blob/main/LICENSE).

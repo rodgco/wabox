@@ -9,13 +9,13 @@
   },
   "author": "Rodrigo Couto <r@rodg.co>",
   "license": "MIT",
-  "homepage": "https://github.com/rodgco/wabox#readme",
+  "homepage": "https://github.com/wabox-app/wabox#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rodgco/wabox.git"
+    "url": "git+https://github.com/wabox-app/wabox.git"
   },
   "bugs": {
-    "url": "https://github.com/rodgco/wabox/issues"
+    "url": "https://github.com/wabox-app/wabox/issues"
   },
   "keywords": [
     "whatsapp",

@@ -11,13 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Replaced `examples/wabox-claude-code.sh` with a minimal
   `examples/echo-bridge.sh`. The full Claude Code bridge moved to its own
-  project, [wabox-bot](https://github.com/rodgco/wabox-bot), where it has
+  project, [wabox-bot](https://github.com/wabox-app/wabox-bot), where it has
   room to grow as a pluggable agent framework (Claude Code by default;
   echo + room for aider, codex, raw-API, …). The new in-tree example is a
   ~30-line learning artifact for anyone writing their own consumer. For
   users of the old script, env vars, slash commands, and Claude session
   history all carry over automatically — see the
-  [migration guide](https://github.com/rodgco/wabox-bot/blob/main/docs/migrating-from-wabox-claude-code.md).
+  [migration guide](https://github.com/wabox-app/wabox-bot/blob/main/docs/migrating-from-wabox-claude-code.md).
 
 ## [0.1.10] - 2026-06-04
 
@@ -103,7 +103,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Installable agent skill at `skills/wabox` (Agent Skills / skills.sh standard):
-  `npx skills add rodgco/wabox` teaches a consumer agent the inbox/outbox
+  `npx skills add wabox-app/wabox` teaches a consumer agent the inbox/outbox
   contract and the read → remove → respond workflow.
 - `INTEGRATION.md` — a guide for agents that consume the boxes (message/job
   formats, replies, reactions, content types, WhatsApp text formatting, the
@@ -191,14 +191,14 @@ Initial release.
   install via systemd, launchd, or Windows Task Scheduler.
 - MIT license and contribution guidelines, including an AI-assistance policy.
 
-[Unreleased]: https://github.com/rodgco/wabox/compare/v0.1.10...HEAD
-[0.1.10]: https://github.com/rodgco/wabox/compare/v0.1.9...v0.1.10
-[0.1.9]: https://github.com/rodgco/wabox/compare/v0.1.8...v0.1.9
-[0.1.8]: https://github.com/rodgco/wabox/compare/v0.1.7...v0.1.8
-[0.1.7]: https://github.com/rodgco/wabox/compare/v0.1.6...v0.1.7
-[0.1.6]: https://github.com/rodgco/wabox/compare/v0.1.5...v0.1.6
-[0.1.5]: https://github.com/rodgco/wabox/compare/v0.1.4...v0.1.5
-[0.1.4]: https://github.com/rodgco/wabox/compare/v0.1.3...v0.1.4
-[0.1.3]: https://github.com/rodgco/wabox/compare/v0.1.1...v0.1.3
-[0.1.1]: https://github.com/rodgco/wabox/compare/v0.1.0...v0.1.1
-[0.1.0]: https://github.com/rodgco/wabox/releases/tag/v0.1.0
+[Unreleased]: https://github.com/wabox-app/wabox/compare/v0.1.10...HEAD
+[0.1.10]: https://github.com/wabox-app/wabox/compare/v0.1.9...v0.1.10
+[0.1.9]: https://github.com/wabox-app/wabox/compare/v0.1.8...v0.1.9
+[0.1.8]: https://github.com/wabox-app/wabox/compare/v0.1.7...v0.1.8
+[0.1.7]: https://github.com/wabox-app/wabox/compare/v0.1.6...v0.1.7
+[0.1.6]: https://github.com/wabox-app/wabox/compare/v0.1.5...v0.1.6
+[0.1.5]: https://github.com/wabox-app/wabox/compare/v0.1.4...v0.1.5
+[0.1.4]: https://github.com/wabox-app/wabox/compare/v0.1.3...v0.1.4
+[0.1.3]: https://github.com/wabox-app/wabox/compare/v0.1.1...v0.1.3
+[0.1.1]: https://github.com/wabox-app/wabox/compare/v0.1.0...v0.1.1
+[0.1.0]: https://github.com/wabox-app/wabox/releases/tag/v0.1.0

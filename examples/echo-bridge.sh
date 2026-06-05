@@ -9,7 +9,7 @@
 # For a real bot — slash commands, per-sender Claude sessions, single-instance
 # locking, pluggable agent backends (Claude Code, aider, …) — use wabox-bot:
 #
-#   https://github.com/rodgco/wabox-bot
+#   https://github.com/wabox-app/wabox-bot
 #
 # Quick start:
 #   export WABOX_INBOX=$(wabox status --json | jq -r .inbox)

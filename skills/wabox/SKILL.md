@@ -287,4 +287,4 @@ for each new inbox/*.json:
 
 ---
 
-Full reference: <https://github.com/rodgco/wabox/blob/main/INTEGRATION.md>
+Full reference: <https://github.com/wabox-app/wabox/blob/main/INTEGRATION.md>
